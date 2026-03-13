@@ -3,15 +3,14 @@
 const express = require('express');
 const router = express.Router();
 
-// This route now corresponds to GET /api/v1/posts/
-router.get('/', (req, res) => {
-res.send('Fetching all blog posts from the modular router!');
-});
+// 1. Import the controller
+const postController = require('../controllers/posts.controller.js');
 
-// Let's add another route for creating a post
-// This will correspond to POST /api/v1/posts/
-router.post('/', (req, res) => {
-res.send('Creating a new blog post...');
-});
+// 2. Use the controller function as the route handler
+// The router's job is now just to connect the path '/' to the 'getAllPosts' function.
+router.get('/', postController.getAllPosts);
+
+// We can remove the old inline function entirely!
+// router.get('/', (req, res) => { ... }); // This is now gone
 
 module.exports = router;
