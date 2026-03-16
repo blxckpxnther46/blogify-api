@@ -10,7 +10,5 @@ const postController = require('../controllers/posts.controller.js');
 // The router's job is now just to connect the path '/' to the 'getAllPosts' function.
 router.get('/', postController.getAllPosts);
 
-// We can remove the old inline function entirely!
-// router.get('/', (req, res) => { ... }); // This is now gone
 
 module.exports = router;

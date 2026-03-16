@@ -6,6 +6,9 @@ const PORT = 3000;
 
 // 1. Import our new post router
 const postRouter = require('./routes/posts.routes.js');
+const userRouter = require('./routes/users.routes.js');
+// 2. Mount the user router
+app.use('/api/v1/users', userRouter);
 
 // Main welcome route
 app.get('/', (req, res) => {
@@ -16,6 +19,7 @@ res.send('Welcome to the Blogify API!');
 // This tells Express: "For any request that starts with /api/v1/posts,
 // hand it over to the postRouter to handle."
 app.use('/api/v1/posts', postRouter);
+
 
 app.listen(PORT, () => {
 console.log(`Server is running at http://localhost:${PORT}/`);
