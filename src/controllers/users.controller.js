@@ -1,6 +1,7 @@
 // src/controllers/users.controller.js
 
 const getSingleUser = (req, res) => {
+  
 // Express puts all URL parameters into the `req.params` object.
 // The property name matches the parameter name from our route definition.
 const requestedUserId = req.params.userId;
