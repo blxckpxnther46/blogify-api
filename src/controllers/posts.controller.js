@@ -67,23 +67,31 @@ const getPostById = async (req, res) => {
 /**
  * Create a new post
  * POST /api/v1/posts
- * @param {Object} req - Express request object (body: { title, content, author })
+ * @param {Object} req - Express request object (body: { title, content })
  * @param {Object} res - Express response object
+ * @note Requires authentication - uses req.user.id as author
  */
 const createPost = async (req, res) => {
   try {
-    const { title, content, author } = req.body;
+    const { title, content } = req.body;
 
     // Validate required fields
-    if (!title || !content || !author) {
+    if (!title || !content) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide all required fields: title, content, author'
+        message: 'Please provide all required fields: title, content'
       });
     }
 
+    // Use authenticated user as author
+    const postData = {
+      title,
+      content,
+      author: req.user.id
+    };
+
     // Create post using service
-    const post = await postService.createPost({ title, content, author });
+    const post = await postService.createPost(postData);
 
     // Return standardized success response
     res.status(201).json({
@@ -103,18 +111,18 @@ const createPost = async (req, res) => {
 /**
  * Update a post
  * PATCH /api/v1/posts/:id
- * @param {Object} req - Express request object
+ * @param {Object} req - Express request object (body: { title?, content?, tags?, likes? })
  * @param {Object} res - Express response object
+ * @note Requires authentication - only owner can update post
  */
 const updatePost = async (req, res) => {
   try {
     const postId = req.params.id;
     const updateData = req.body;
 
-    // Update post using service
-    const post = await postService.updatePost(postId, updateData);
+    // Fetch post to check ownership
+    const post = await postService.getPostById(postId);
 
-    // Check if post exists
     if (!post) {
       return res.status(404).json({
         success: false,
@@ -122,11 +130,22 @@ const updatePost = async (req, res) => {
       });
     }
 
+    // Check if the user is the post author
+    if (post.author._id.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not authorized to update this post'
+      });
+    }
+
+    // Update post using service
+    const updatedPost = await postService.updatePost(postId, updateData);
+
     // Return standardized success response
     res.status(200).json({
       success: true,
       data: {
-        post: post
+        post: updatedPost
       }
     });
   } catch (error) {
@@ -142,15 +161,15 @@ const updatePost = async (req, res) => {
  * DELETE /api/v1/posts/:id
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
+ * @note Requires authentication - only owner can delete post
  */
 const deletePost = async (req, res) => {
   try {
     const postId = req.params.id;
 
-    // Delete post using service
-    const post = await postService.deletePost(postId);
+    // Fetch post to check ownership
+    const post = await postService.getPostById(postId);
 
-    // Check if post exists
     if (!post) {
       return res.status(404).json({
         success: false,
@@ -158,12 +177,23 @@ const deletePost = async (req, res) => {
       });
     }
 
+    // Check if the user is the post author
+    if (post.author._id.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not authorized to delete this post'
+      });
+    }
+
+    // Delete post using service
+    const deletedPost = await postService.deletePost(postId);
+
     // Return standardized success response
     res.status(200).json({
       success: true,
       message: 'Post deleted successfully',
       data: {
-        post: post
+        post: deletedPost
       }
     });
   } catch (error) {
