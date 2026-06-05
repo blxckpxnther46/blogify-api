@@ -41,7 +41,7 @@ Routes → Controllers → Services → Models → Database
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js (v14 or higher)
+- Node.js (v18 or higher)
 - MongoDB Atlas account
 - npm or yarn
 
@@ -70,6 +70,11 @@ Routes → Controllers → Services → Models → Database
    ```bash
    npm run dev
    ```
+
+  For production deployments, use:
+  ```bash
+  npm start
+  ```
 
    Expected output:
    ```
